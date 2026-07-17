@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🍬 RAPTOR Sugar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff;--bg2:#f8f9fa;--bg3:#f1f3f5;
+  --border:#dee2e6;--text:#212529;--text2:#495057;--text3:#868e96;
+  --accent:#1971c2;--green:#2f9e44;--red:#c92a2a;--orange:#e67700;
+  --sugar:#2b8a3e;--sugar2:#d3f9d8;
+  --kf:#dc2626;--ks:#7c3aed;--rsi14:#e67700;--rsi5:#1971c2;
+  --font-mono:'Space Mono',monospace;
+  --font-cond:'Barlow Condensed',sans-serif;
+  --font-body:'Barlow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:13px}
+
+/* TOPBAR */
+.topbar{background:#0f1a10;border-bottom:3px solid var(--sugar);display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--font-cond);font-weight:800;font-size:22px;letter-spacing:3px;color:var(--sugar)}
+.logo span{color:#5a8060;font-weight:300}
+.spacer{flex:1}
+.ts{font-size:10px;color:#5a8060;font-family:var(--font-cond);letter-spacing:.5px}
+.btn-top{background:transparent;border:1px solid #5a8060;color:#2b8a3e;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--font-cond);font-weight:700;letter-spacing:.5px;transition:all .12s;text-decoration:none}
+.btn-top:hover{background:var(--sugar);color:#0f1a10;border-color:var(--sugar)}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);padding:0 20px;background:var(--bg)}
+
+.comment-bar{margin:14px 20px 0;padding:12px 16px;background:var(--bg2);border-left:4px solid var(--sugar);border-radius:4px;font-size:12px;line-height:1.6;color:var(--text2)}
+.comment-bar b{color:var(--text)}
+.comment-bar .ctag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.5px;margin-right:4px}
+.comment-bar .ctag.green{background:#e6f7e9;color:var(--green)}
+.comment-bar .ctag.red{background:#fce8e8;color:var(--red)}
+.comment-bar .ctag.orange{background:#fff3cd;color:var(--orange)}
+.comment-bar .ctag.blue{background:#e7f0fb;color:var(--accent)}
+.comment-bar .ctag.grey{background:#e9ecef;color:var(--text3)}
+.tab{padding:10px 18px;font-family:var(--font-cond);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--text3);transition:all .12s}
+.tab:hover{color:var(--text)}.tab.act{color:var(--sugar);border-bottom-color:var(--sugar)}
+
+/* PANELS */
+.panel{display:none;padding:20px}.panel.visible{display:block}
+
+/* KPI */
+.kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px 16px;min-width:130px;flex:1}
+.kpi .kl{font-size:9px;color:var(--text3);font-family:var(--font-cond);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.kpi .kv{font-family:var(--font-mono);font-size:18px;font-weight:700}
+.kpi .ks2{font-size:10px;color:var(--text3);margin-top:2px}
+.kv.green{color:var(--green)}.kv.red{color:var(--red)}.kv.orange{color:var(--orange)}.kv.sugar{color:var(--sugar)}
+
+/* SECTION */
+.section-title{font-family:var(--font-cond);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--text);margin:20px 0 10px;display:flex;align-items:center;gap:8px;padding-bottom:6px;border-bottom:2px solid var(--border)}
+
+/* ANTONACCI BOX */
+.ant-box{border-radius:8px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.ant-box.buy{background:#d3f9d8;border:2px solid var(--green)}
+.ant-box.out{background:#ffe3e3;border:2px solid var(--red)}
+.ant-signal{font-family:var(--font-cond);font-size:28px;font-weight:800;letter-spacing:2px}
+.ant-buy{color:var(--green)}.ant-out{color:var(--red)}
+.ant-detail{font-size:11px;color:var(--text2);line-height:1.6}
+
+/* CHART WRAPPER */
+.chart-wrap{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.chart-label{font-size:9px;color:var(--text3);font-family:var(--font-cond);letter-spacing:.5px;padding:6px 12px}
+
+/* LOADING */
+.loading{text-align:center;padding:60px;color:var(--text3);font-family:var(--font-cond);font-size:14px;letter-spacing:1px}
+
+/* SUPPORTI */
+.sup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px}
+.sup-card{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:8px 12px;text-align:center}
+.sup-price{font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--accent)}
+.sup-date{font-size:9px;color:var(--text3);font-family:var(--font-cond);margin-top:2px}
+.sup-card.strong{border-color:var(--green);background:#d3f9d8}
+.sup-card.key{border-color:var(--orange);background:#fff3bf}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🍬 RAPTOR<span> SUGAR</span></div>
+  <div class="spacer"></div>
+  <span class="ts" id="tsLabel">—</span>
+  <a class="btn-top" href="lsug_chart.html">📈 Grafico LSUG</a>
+  <a class="btn-top" href="https://giorgiogoldoni.github.io/raptor-leva/RAPTOR_Leva.html">⚡ Leva</a>
+  <a class="btn-top" href="https://giorgiogoldoni.github.io/raptor-portafoglio/portafoglio.html">📋 Portafoglio</a>
+</div>
+
+<div class="tabs">
+  <div class="tab act" onclick="setTab('stag')"    id="tab-stag">📊 Stagionalità</div>
+  <div class="tab"     onclick="setTab('ant')"     id="tab-ant">⚡ Antonacci</div>
+  <div class="tab"     onclick="setTab('sug')"     id="tab-sug">📈 LSUG</div>
+</div>
+
+<div id="autoComment" class="comment-bar"></div>
+
+<div id="loading" class="loading">⏳ Caricamento dati...</div>
+
+<!-- TAB STAGIONALITÀ -->
+<div class="panel" id="panel-stag">
+  <div class="kpi-row" id="stag-kpis"></div>
+  <div class="section-title">📅 Rendimento medio mensile — 25 anni ICE Sugar No.11</div>
+  <div class="chart-wrap">
+    <div class="chart-label">Barre: rendimento medio % per mese · Verde = positivo · Rosso = negativo · Linea = KAMA del rendimento</div>
+    <div id="stagChart"></div>
+  </div>
+  <div class="section-title">📈 Prezzi ICE Sugar — ultimi 3 anni con KAMA</div>
+  <div class="chart-wrap">
+    <div class="chart-label">Prezzo ICE Sugar (cents/lb) · Rosso = KAMA Fast · Viola = KAMA Slow</div>
+    <div id="iceChart"></div>
+  </div>
+  <div class="section-title">🧱 Renko ICE Sugar — ATR-based</div>
+  <div class="chart-wrap">
+    <div class="chart-label" id="renkoLabel">Mattone = ATR(14) medio del periodo · Verde = rialzo · Rosso = ribasso · Asse orizzontale = numero di mattoni, NON tempo</div>
+    <div id="renkoChart"></div>
+  </div>
+</div>
+
+<!-- TAB ANTONACCI -->
+<div class="panel" id="panel-ant">
+  <div class="section-title">⚡ Dual Momentum Antonacci — Segnale attuale</div>
+  <div id="antBox"></div>
+  <div class="section-title">📊 Storico segnali Antonacci su ICE Sugar (12 mesi)</div>
+  <div class="chart-wrap">
+    <div class="chart-label">Verde = BUY (momentum positivo) · Rosso = OUT · Linea = prezzo ICE Sugar</div>
+    <div id="antChart"></div>
+  </div>
+  <div class="section-title">📈 Antonacci su LSUG — dal 2019</div>
+  <div class="chart-wrap">
+    <div class="chart-label">Momentum assoluto 12 mesi su LSUG · Verde = BUY · Rosso = OUT</div>
+    <div id="antSugChart"></div>
+  </div>
+</div>
+
+<!-- TAB LSUG -->
+<div class="panel" id="panel-sug">
+  <div class="kpi-row" id="sug-kpis"></div>
+  <div class="section-title">📈 LSUG — Heikin Ashi + KAMA + SAR + Segnali</div>
+  <div class="chart-wrap">
+    <div class="chart-label">Candele Heikin Ashi · Rosso = KAMA Fast · Viola = KAMA Slow · Punti SAR (grande = flip) · ▲ BUY · ▼ SELL</div>
+    <div id="sugPriceChart"></div>
+  </div>
+  <div class="section-title">📊 AO + RSI 14/5</div>
+  <div class="chart-wrap">
+    <div class="chart-label">AO (EMA3−EMA13) · RSI14 arancio · RSI5 blu tratteggiato</div>
+    <div id="sugRsiChart"></div>
+  </div>
+  <div class="section-title">📍 Supporti storici LSUG</div>
+  <div id="sugSupports"></div>
+</div>
+
+<script>
+const DATA_URL = 'https://raw.githubusercontent.com/Giorgiogoldoni/sugar/main/sugar.json';
+let D = null;
+
+// ── TABS ──────────────────────────────────────────
+function setTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('visible'));
+  document.getElementById('tab-'+tab).classList.add('act');
+  document.getElementById('panel-'+tab).classList.add('visible');
+}
+
+// ── INIT ──────────────────────────────────────────
+async function init() {
+  try {
+    const r = await fetch(DATA_URL + '?t=' + Date.now());
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    D = await r.json();
+    document.getElementById('loading').style.display = 'none';
+    document.querySelectorAll('.panel')[0].classList.add('visible');
+    document.getElementById('tsLabel').textContent = D.updated_display || '';
+    renderStagionalita();
+    renderAntonacci();
+    renderSUG();
+    renderAutoComment();
+  } catch(e) {
+    document.getElementById('loading').textContent = '❌ ' + e.message + ' — eseguire prima il workflow fetch';
+  }
+}
+
+// ── HEIKIN ASHI ───────────────────────────────────
+function calcHeikinAshi(opens, highs, lows, closes) {
+  const n = closes.length;
+  const haClose=[], haOpen=[], haHigh=[], haLow=[];
+  for (let i=0;i<n;i++) {
+    if (opens[i]==null || highs[i]==null || lows[i]==null || closes[i]==null) {
+      haClose.push(null); haOpen.push(null); haHigh.push(null); haLow.push(null); continue;
+    }
+    const hc = (opens[i]+highs[i]+lows[i]+closes[i])/4;
+    const ho = i===0 || haOpen[i-1]==null ? (opens[i]+closes[i])/2 : (haOpen[i-1]+haClose[i-1])/2;
+    const hh = Math.max(highs[i], ho, hc);
+    const hl = Math.min(lows[i], ho, hc);
+    haClose.push(hc); haOpen.push(ho); haHigh.push(hh); haLow.push(hl);
+  }
+  return {open:haOpen, high:haHigh, low:haLow, close:haClose};
+}
+
+// ── COMMENTO AUTOMATICO (rule-based) ──────────────
+function renderAutoComment() {
+  const sug = D.sug, ice = D.ice;
+
+  // ── ICE Sugar: zona KAMA + RSI + AO + Segnale ──
+  const cCloses = ice.closes.filter(v=>v!=null);
+  const clc = cCloses.at(-1);
+  const ckf = ice.kama_fast.filter(v=>v!=null).at(-1);
+  const cks = ice.kama_slow.filter(v=>v!=null).at(-1);
+  let czTag='grey', czTxt='dati insufficienti per la zona';
+  if(ckf!=null && cks!=null && clc!=null){
+    if(clc>ckf && ckf>cks){ czTag='green'; czTxt='sopra entrambe le KAMA — trend rialzista confermato'; }
+    else if(clc>ckf && clc>cks){ czTag='blue'; czTxt='sopra KAMA Fast e Slow ma KAMA Fast ancora sotto KAMA Slow — trend in formazione'; }
+    else if(clc<cks){
+      const distPct=(cks-clc)/cks*100;
+      czTxt = distPct>2 ? 'sotto KAMA Slow di oltre il 2% — trend ribassista' : 'appena sotto KAMA Slow — indebolimento';
+      czTag = distPct>2 ? 'red' : 'orange';
+    } else { czTag='grey'; czTxt='zona indecisa (KAMA piatte/laterali)'; }
+  }
+  const iceTxt = `<span class="ctag ${czTag}">ICE</span>Sugar a ${clc?.toFixed(2)||'—'} cents: ${czTxt}.<br>`;
+
+  // ── LSUG: zona KAMA + RSI + AO + Segnale ─────────
+  const closes = sug.closes.filter(v=>v!=null);
+  const lc = closes.at(-1);
+  const kf = sug.kama_fast.filter(v=>v!=null).at(-1);
+  const ks = sug.kama_slow.filter(v=>v!=null).at(-1);
+  const r14 = sug.rsi14.filter(v=>v!=null).at(-1);
+  const r5  = sug.rsi5.filter(v=>v!=null).at(-1);
+  const aoArr = sug.ao.filter(v=>v!=null);
+  const ao = aoArr.at(-1), aoPrev = aoArr.at(-2);
+  const lastSig = [...sug.signals].reverse().find(s=>s);
+
+  let zTag='grey', zTxt='dati insufficienti per la zona';
+  if(kf!=null && ks!=null && lc!=null){
+    if(lc>kf && kf>ks){ zTag='green'; zTxt='trend rialzista confermato (prezzo &gt; KAMA Fast &gt; KAMA Slow)'; }
+    else if(lc>kf && lc>ks){ zTag='blue'; zTxt='trend rialzista in formazione (sopra KAMA Fast, sotto KAMA Slow)'; }
+    else if(lc<ks){
+      const distPct=(ks-lc)/ks*100;
+      if(distPct>2){ zTag='red'; zTxt='sotto KAMA Slow di oltre il 2% — zona di stop'; }
+      else { zTag='orange'; zTxt='appena sotto KAMA Slow — zona di uscita'; }
+    } else { zTag='grey'; zTxt='zona indecisa (KAMA piatte/laterali)'; }
+  }
+
+  let rsiTxt='dati RSI insufficienti', rsiTag='grey';
+  if(r5!=null && r14!=null){
+    if(r5>r14){ rsiTag='green'; rsiTxt=`RSI5 (${r5.toFixed(0)}) sopra RSI14 (${r14.toFixed(0)}) — momentum di breve favorevole`; }
+    else { rsiTag='red'; rsiTxt=`RSI5 (${r5.toFixed(0)}) sotto RSI14 (${r14.toFixed(0)}) — momentum di breve debole`; }
+  }
+
+  let aoTxt='';
+  if(ao!=null && aoPrev!=null){
+    aoTxt = ao>=aoPrev ? 'AO in aumento (accelerazione)' : 'AO in calo (decelerazione)';
+  }
+
+  let supTxt='';
+  const sups = D.sug_supports;
+  if(sups && sups.length && lc!=null){
+    const nearest = sups.reduce((a,b)=>Math.abs(b.price-lc)<Math.abs(a.price-lc)?b:a);
+    const distPct = ((lc-nearest.price)/nearest.price*100).toFixed(1);
+    supTxt = ` Supporto più vicino: <b>${nearest.price.toFixed(4)}</b> (${nearest.date}), a ${distPct>0?'+':''}${distPct}% dal prezzo attuale.`;
+  }
+
+  let macroTxt='';
+  const al = D.antonacci_latest;
+  if(al){
+    macroTxt = ` Sottostante (ICE): momentum 12 mesi ${al.ret_12m>0?'+':''}${al.ret_12m}% (${al.ret_12m>0?'favorevole':'sfavorevole'} per posizioni long su strumenti a leva).`;
+  }
+
+  // ── SAR FLIP badge ──
+  let flipTxt = '';
+  const lf = D.sar_flip_last;
+  if(lf && lf.date){
+    const flipTag = lf.direction==='LONG' ? 'green' : 'red';
+    flipTxt = ` <span class="ctag ${flipTag}" style="margin-left:8px">SAR</span>⚠️ SAR girato <b>${lf.direction}</b> il ${lf.date} a ${lf.price?.toFixed(4)||'—'}.`;
+  }
+
+  document.getElementById('autoComment').innerHTML =
+    iceTxt +
+    `<span class="ctag ${zTag}">LSUG</span><b>LSUG</b> a ${lc?.toFixed(4)||'—'}: ${zTxt}.
+     <span class="ctag ${rsiTag}" style="margin-left:8px">RSI</span>${rsiTxt}. ${aoTxt}.
+     Ultimo segnale: <b>${lastSig||'nessuno recente'}</b>.${supTxt}${macroTxt}${flipTxt}`;
+}
+
+// ── SVG HELPERS ───────────────────────────────────
+const ns = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs, par) {
+  const e = document.createElementNS(ns,tag);
+  for(const [k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+  if(par) par.appendChild(e); return e;
+}
+function scY(v,mn,mx,yT,h) { if(mx===mn) return yT+h/2; return yT+h-((v-mn)/(mx-mn))*h; }
+function poly(pts, svg2, stroke, sw=1.5, dash='') {
+  if(pts.length<2) return;
+  svgEl('polyline',{points:pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' '),
+    stroke,'stroke-width':sw,fill:'none','stroke-linejoin':'round',
+    ...(dash?{'stroke-dasharray':dash}:{})},svg2);
+}
+function txt(x,y,s,fill,size=8,anchor='middle',svg2) {
+  const e=svgEl('text',{x:x.toFixed(1),y:y.toFixed(1),fill,'font-size':size,
+    'font-family':'Space Mono,monospace','text-anchor':anchor},svg2);
+  e.textContent=s; return e;
+}
+
+// ── STAGIONALITÀ ──────────────────────────────────
+function renderStagionalita() {
+  const stag = D.stagionalita;
+  const mese_att = new Date().getMonth()+1;
+
+  const best  = stag.reduce((a,b)=>a.avg_ret>b.avg_ret?a:b);
+  const worst = stag.reduce((a,b)=>a.avg_ret<b.avg_ret?a:b);
+  const curr  = stag[mese_att-1];
+  document.getElementById('stag-kpis').innerHTML = [
+    {l:'Mese attuale',v:curr.nome,s:`avg ${curr.avg_ret>0?'+':''}${curr.avg_ret}% · WR ${curr.win_rate}%`,c:'sugar'},
+    {l:'Mese migliore',v:best.nome,s:`+${best.avg_ret}% · WR ${best.win_rate}%`,c:'green'},
+    {l:'Mese peggiore',v:worst.nome,s:`${worst.avg_ret}% · WR ${worst.win_rate}%`,c:'red'},
+    {l:'Dataset',v:'25 anni',s:'ICE Sugar No.11 Futures',c:''},
+  ].map(k=>`<div class="kpi"><div class="kl">${k.l}</div><div class="kv ${k.c}">${k.v}</div><div class="ks2">${k.s}</div></div>`).join('');
+
+  const W=700, H=200, PAD={l:50,r:20,t:10,b:30};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+  const vals = stag.map(s=>s.avg_ret);
+  const mn=Math.min(...vals,0)*1.1, mx=Math.max(...vals,0)*1.1;
+  const barW = PW/12 - 4;
+  const zero = scY(0,mn,mx,PAD.t,PH);
+
+  const svg = svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+
+  [mn,0,mx].forEach(v=>{
+    const y=scY(v,mn,mx,PAD.t,PH);
+    svgEl('line',{x1:PAD.l,y1:y.toFixed(1),x2:PAD.l+PW,y2:y.toFixed(1),stroke:v===0?'#ced4da':'#e9ecef','stroke-width':v===0?1:.5},svg);
+    txt(PAD.l-4,y+3,(v>0?'+':'')+v.toFixed(2)+'%','#adb5bd',6.5,'end',svg);
+  });
+
+  stag.forEach((s,i)=>{
+    const x = PAD.l + i*(PW/12) + 2;
+    const y = scY(s.avg_ret,mn,mx,PAD.t,PH);
+    const bh = Math.abs(y-zero);
+    const col = s.avg_ret>=0 ? '#2f9e44' : '#c92a2a';
+    const isNow = (i+1)===mese_att;
+    svgEl('rect',{x:x.toFixed(1),y:Math.min(y,zero).toFixed(1),width:barW.toFixed(1),height:Math.max(bh,1).toFixed(1),
+      fill:col,opacity:isNow?'1':'0.65',stroke:isNow?'#0f1a10':'none','stroke-width':'2'},svg);
+    txt(x+barW/2, H-PAD.b+12, s.nome,'#495057',7,'middle',svg);
+    txt(x+barW/2, Math.min(y,zero)-3, (s.avg_ret>0?'+':'')+s.avg_ret+'%','#495057',6.5,'middle',svg);
+    txt(x+barW/2, Math.min(y,zero)-12, s.win_rate+'%','#868e96',6,'middle',svg);
+  });
+
+  const kama_stag = calcKamaSimple(vals, 3);
+  const kpts = kama_stag.map((v,i)=>v!=null?[PAD.l+(i+0.5)*(PW/12), scY(v,mn,mx,PAD.t,PH)]:null).filter(Boolean);
+  poly(kpts, svg, '#2b8a3e', 2.5);
+
+  document.getElementById('stagChart').appendChild(svg);
+
+  renderICEChart();
+}
+
+function calcKamaSimple(arr, n=3) {
+  const fsc=2/4, ssc=2/31;
+  const k=[...arr].map(()=>null);
+  if(arr.length<=n) return k;
+  k[n]=arr[n];
+  for(let i=n+1;i<arr.length;i++) {
+    const d=Math.abs(arr[i]-arr[i-n]);
+    let v=0; for(let j=i-n+1;j<=i;j++) v+=Math.abs(arr[j]-arr[j-1]);
+    const er=v?d/v:0, sc=Math.pow(er*(fsc-ssc)+ssc,2);
+    k[i]=k[i-1]+sc*(arr[i]-k[i-1]);
+  }
+  return k;
+}
+
+function renderICEChart() {
+  const ice = D.ice;
+  const N = ice.closes.length;
+  const W=700, PAD={l:54,r:30,t:8,b:20};
+  const panels=[{h:140,id:'price'},{h:50,id:'nothing'}];
+  const H=panels.reduce((s,p)=>s+p.h,0)+PAD.t+PAD.b;
+  const PW=W-PAD.l-PAD.r;
+  const svg=svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+
+  const xPos=i=>PAD.l+(i/Math.max(N-1,1))*PW;
+  let yOff=PAD.t;
+
+  const allP=[...ice.closes,...ice.kama_fast.filter(v=>v),...ice.kama_slow.filter(v=>v)].filter(v=>v);
+  const mn=Math.min(...allP)*.997, mx=Math.max(...allP)*1.003;
+  const h=140;
+  svgEl('rect',{x:PAD.l,y:yOff,width:PW,height:h,fill:'#f8f9fa'},svg);
+  for(let g=0;g<=4;g++){
+    const y=yOff+h/4*g;
+    svgEl('line',{x1:PAD.l,y1:y.toFixed(1),x2:PAD.l+PW,y2:y.toFixed(1),stroke:g===0||g===4?'#ced4da':'#e9ecef','stroke-width':g===0||g===4?.8:.4},svg);
+    const v=mn+(mx-mn)/4*(4-g);
+    txt(PAD.l-3,y+3,v.toFixed(0),'#adb5bd',6.5,'end',svg);
+  }
+  const sy=v=>scY(v,mn,mx,yOff,h);
+  poly(ice.kama_slow.map((v,i)=>v?[xPos(i),sy(v)]:null).filter(Boolean),svg,'#7c3aed',1.5);
+  poly(ice.kama_fast.map((v,i)=>v?[xPos(i),sy(v)]:null).filter(Boolean),svg,'#dc2626',1.3);
+  poly(ice.closes.map((v,i)=>v?[xPos(i),sy(v)]:null).filter(Boolean),svg,'#343a40',1.8);
+
+  const step=Math.max(1,Math.floor(N/8));
+  for(let i=0;i<N;i+=step) if(ice.dates[i]) txt(xPos(i),H-PAD.b+10,ice.dates[i].slice(0,7),'#adb5bd',7,'middle',svg);
+
+  document.getElementById('iceChart').appendChild(svg);
+
+  drawRenkoICE(ice);
+}
+
+// ── RENKO (ATR-based) ─────────────────────────────
+function calcATRSeries(highs, lows, closes) {
+  const tr = [];
+  for (let i=0;i<closes.length;i++) {
+    if (i===0 || !closes[i-1]) { tr.push(highs[i]-lows[i]); continue; }
+    tr.push(Math.max(
+      highs[i]-lows[i],
+      Math.abs(highs[i]-closes[i-1]),
+      Math.abs(lows[i]-closes[i-1])
+    ));
+  }
+  return tr;
+}
+
+function buildRenkoBricks(closes, brickSize) {
+  const bricks = [];
+  let current = Math.round(closes[0]/brickSize)*brickSize;
+  let trend = 0;
+  for (let i=1;i<closes.length;i++) {
+    const price = closes[i];
+    if (price==null) continue;
+    let guard = 0;
+    while (guard++ < 100) {
+      if (trend>=0 && price >= current+brickSize) {
+        current += brickSize; trend = 1; bricks.push({dir:1, level:current});
+      } else if (trend<=0 && price <= current-brickSize) {
+        current -= brickSize; trend = -1; bricks.push({dir:-1, level:current});
+      } else if (trend===1 && price <= current-2*brickSize) {
+        current -= brickSize; trend = -1; bricks.push({dir:-1, level:current});
+      } else if (trend===-1 && price >= current+2*brickSize) {
+        current += brickSize; trend = 1; bricks.push({dir:1, level:current});
+      } else break;
+    }
+  }
+  return bricks;
+}
+
+function drawRenkoICE(ice) {
+  const closes = ice.closes.filter(v=>v!=null);
+  const tr = calcATRSeries(ice.highs, ice.lows, ice.closes);
+  const atrAvg = tr.reduce((a,b)=>a+b,0)/tr.length;
+  const brickSize = Math.max(0.05, Math.round(atrAvg*20)/20);
+
+  const bricks = buildRenkoBricks(closes, brickSize);
+  document.getElementById('renkoLabel').textContent =
+    `Mattone = ${brickSize.toFixed(2)} cents (ATR14 medio ≈ ${atrAvg.toFixed(2)}) · Verde = rialzo · Rosso = ribasso · Asse orizzontale = numero di mattoni (${bricks.length}), NON tempo`;
+
+  const N = bricks.length;
+  if (N < 2) { document.getElementById('renkoChart').innerHTML = '<div style="padding:20px;color:#868e96;font-size:11px">Dati insufficienti per il Renko</div>'; return; }
+
+  const W=700, H=220, PAD={l:54,r:20,t:8,b:20};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+  const levels = bricks.map(b=>b.level);
+  const mn = Math.min(...levels)-brickSize, mx = Math.max(...levels)+brickSize;
+  const bW = PW/N;
+  const sy = v=>scY(v,mn,mx,PAD.t,PH);
+  const svg = svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+
+  svgEl('rect',{x:PAD.l,y:PAD.t,width:PW,height:PH,fill:'#f8f9fa'},svg);
+  for(let g=0;g<=4;g++){
+    const y=PAD.t+PH/4*g;
+    svgEl('line',{x1:PAD.l,y1:y.toFixed(1),x2:PAD.l+PW,y2:y.toFixed(1),stroke:g===0||g===4?'#ced4da':'#e9ecef','stroke-width':g===0||g===4?.8:.4},svg);
+    txt(PAD.l-3,y+3,(mn+(mx-mn)/4*(4-g)).toFixed(2),'#adb5bd',6.5,'end',svg);
+  }
+
+  bricks.forEach((b,i)=>{
+    const x = PAD.l + i*bW;
+    const top = sy(b.level);
+    const bot = sy(b.level-brickSize*b.dir);
+    const y = Math.min(top,bot), h = Math.max(Math.abs(top-bot),1);
+    svgEl('rect',{x:(x+.5).toFixed(1),y:y.toFixed(1),width:Math.max(bW-1,1).toFixed(1),height:h.toFixed(1),
+      fill:b.dir>0?'#2f9e44':'#c92a2a',stroke:'#fff','stroke-width':.5},svg);
+  });
+
+  document.getElementById('renkoChart').appendChild(svg);
+}
+
+// ── ANTONACCI ────────────────────────────────────
+function renderAntonacci() {
+  const al = D.antonacci_latest;
+  const wl = D.antonacci_sug_latest;
+  const isBuy = al && al.signal === 'BUY';
+
+  document.getElementById('antBox').innerHTML = `
+    <div class="ant-box ${isBuy?'buy':'out'}">
+      <div class="ant-signal ${isBuy?'ant-buy':'ant-out'}">${isBuy?'🟢 BUY':'🔴 OUT'}</div>
+      <div class="ant-detail">
+        <strong>Momentum ICE Sugar 12 mesi: ${al?(al.ret_12m>0?'+':'')+al.ret_12m+'%':'—'}</strong><br>
+        Prezzo attuale: ${al?al.price:'-'} cents/lb<br>
+        Regola Antonacci: se rendimento 12 mesi > 0 → BUY · se < 0 → OUT<br>
+        <br>
+        <strong>LSUG momentum 12 mesi: ${wl?(wl.ret_12m>0?'+':'')+wl.ret_12m+'% ('+wl.signal+')':'—'}</strong>
+      </div>
+    </div>`;
+
+  const data = D.antonacci_ice;
+  if(data && data.length) {
+    const W=700, H=140, PAD={l:54,r:20,t:8,b:20};
+    const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+    const N=data.length;
+    const prices=data.map(d=>d.price).filter(v=>v);
+    const mn=Math.min(...prices)*.995, mx=Math.max(...prices)*1.005;
+    const svg=svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+    const xPos=i=>PAD.l+(i/Math.max(N-1,1))*PW;
+    const sy=v=>scY(v,mn,mx,PAD.t,PH);
+
+    svgEl('rect',{x:PAD.l,y:PAD.t,width:PW,height:PH,fill:'#f8f9fa'},svg);
+
+    let prevSig=null, segStart=0;
+    data.forEach((d,i)=>{
+      if(d.signal!==prevSig || i===N-1) {
+        if(prevSig && i>segStart) {
+          svgEl('rect',{x:xPos(segStart).toFixed(1),y:PAD.t,
+            width:(xPos(i)-xPos(segStart)).toFixed(1),height:PH,
+            fill:prevSig==='BUY'?'#2f9e44':'#c92a2a',opacity:'.08'},svg);
+        }
+        segStart=i; prevSig=d.signal;
+      }
+    });
+
+    poly(data.map((d,i)=>d.price?[xPos(i),sy(d.price)]:null).filter(Boolean),svg,'#343a40',1.8);
+
+    const step=Math.max(1,Math.floor(N/8));
+    for(let i=0;i<N;i+=step) if(data[i]) txt(xPos(i),H-PAD.b+10,data[i].date.slice(5),'#adb5bd',7,'middle',svg);
+
+    document.getElementById('antChart').appendChild(svg);
+  }
+
+  const wdata = D.antonacci_sug;
+  if(wdata && wdata.length) {
+    const W=700, H=140, PAD={l:54,r:20,t:8,b:20};
+    const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+    const N=wdata.length;
+    const prices=wdata.map(d=>d.price).filter(v=>v);
+    const mn=Math.min(...prices)*.99, mx=Math.max(...prices)*1.01;
+    const svg=svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+    const xPos=i=>PAD.l+(i/Math.max(N-1,1))*PW;
+    const sy=v=>scY(v,mn,mx,PAD.t,PH);
+
+    svgEl('rect',{x:PAD.l,y:PAD.t,width:PW,height:PH,fill:'#f8f9fa'},svg);
+    let prevSig=null, segStart=0;
+    wdata.forEach((d,i)=>{
+      if(d.signal!==prevSig || i===N-1) {
+        if(prevSig && i>segStart) {
+          svgEl('rect',{x:xPos(segStart).toFixed(1),y:PAD.t,
+            width:(xPos(i)-xPos(segStart)).toFixed(1),height:PH,
+            fill:prevSig==='BUY'?'#2f9e44':'#c92a2a',opacity:'.1'},svg);
+        }
+        segStart=i; prevSig=d.signal;
+      }
+    });
+    poly(wdata.map((d,i)=>d.price?[xPos(i),sy(d.price)]:null).filter(Boolean),svg,'#2b8a3e',2);
+    const step=Math.max(1,Math.floor(N/8));
+    for(let i=0;i<N;i+=step) if(wdata[i]) txt(xPos(i),H-PAD.b+10,wdata[i].date.slice(0,7),'#adb5bd',7,'middle',svg);
+    document.getElementById('antSugChart').appendChild(svg);
+  }
+}
+
+// ── LSUG ─────────────────────────────────────────
+function renderSUG() {
+  const sug = D.sug;
+  const N = sug.closes.length;
+  const lc = sug.closes.filter(v=>v).at(-1);
+  const lkf = sug.kama_fast.filter(v=>v).at(-1);
+  const lks = sug.kama_slow.filter(v=>v).at(-1);
+  const lr14 = sug.rsi14.filter(v=>v).at(-1);
+  const lr5  = sug.rsi5.filter(v=>v).at(-1);
+  const lastSig = [...sug.signals].reverse().find(s=>s);
+
+  document.getElementById('sug-kpis').innerHTML = [
+    {l:'Prezzo LSUG',v:lc?.toFixed(4)||'—',s:'attuale',c:'sugar'},
+    {l:'KAMA Fast',v:lkf?.toFixed(4)||'—',s:'',c:'red'},
+    {l:'KAMA Slow',v:lks?.toFixed(4)||'—',s:'',c:''},
+    {l:'RSI 14',v:lr14?.toFixed(1)||'—',s:'',c:lr14>70?'red':lr14>50?'orange':'green'},
+    {l:'RSI 5',v:lr5?.toFixed(1)||'—',s:'',c:''},
+    {l:'Segnale',v:lastSig||'—',s:'ultimo',c:lastSig==='SELL'?'red':lastSig?.includes('BUY')?'green':''},
+  ].map(k=>`<div class="kpi"><div class="kl">${k.l}</div><div class="kv ${k.c}">${k.v}</div><div class="ks2">${k.s}</div></div>`).join('');
+
+  drawSUGPrice(sug);
+  drawSUGRSI(sug);
+
+  const sups = D.sug_supports;
+  if(sups && sups.length) {
+    document.getElementById('sugSupports').innerHTML = '<div class="sup-grid">' +
+      sups.sort((a,b)=>a.price-b.price).map(s=>{
+        const isMin = s.price === Math.min(...sups.map(x=>x.price));
+        const isNear = Math.abs(s.price-lc)<0.015;
+        return `<div class="sup-card ${isMin?'strong':isNear?'key':''}">
+          <div class="sup-price">${s.price.toFixed(4)}</div>
+          <div class="sup-date">${s.date}</div>
+          ${isMin?'<div style="font-size:8px;color:var(--green);font-weight:700">MIN STORICO</div>':''}
+          ${isNear?'<div style="font-size:8px;color:var(--orange);font-weight:700">LIVELLO ATTUALE</div>':''}
+        </div>`;
+      }).join('') + '</div>';
+  }
+}
+
+function drawSUGPrice(sug) {
+  // Mostra ultimi 2 anni (504 barre)
+  const sl = Math.max(0, sug.closes.length-504);
+  const closes  = sug.closes.slice(sl);
+  const opens   = sug.opens.slice(sl);
+  const highs   = sug.highs.slice(sl);
+  const lows    = sug.lows.slice(sl);
+  const kf      = sug.kama_fast.slice(sl);
+  const ks      = sug.kama_slow.slice(sl);
+  const sar     = sug.sar.slice(sl);
+  const sarFlip = sug.sar_flip.slice(sl);
+  const signals = sug.signals.slice(sl);
+  const N=closes.length;
+  const W=700, H=200, PAD={l:54,r:30,t:8,b:20};
+  const PW=W-PAD.l-PAD.r;
+  const svg=svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+
+  // Heikin Ashi
+  const ha = calcHeikinAshi(opens, highs, lows, closes);
+
+  const allP=[...ha.high.filter(v=>v),...ha.low.filter(v=>v),...kf.filter(v=>v),...ks.filter(v=>v)].filter(v=>v);
+  const mn=Math.min(...allP)*.99, mx=Math.max(...allP)*1.01;
+  const h=H-PAD.t-PAD.b;
+  const xPos=i=>PAD.l+(i/Math.max(N-1,1))*PW;
+  const sy=v=>scY(v,mn,mx,PAD.t,h);
+
+  svgEl('rect',{x:PAD.l,y:PAD.t,width:PW,height:h,fill:'#f8f9fa'},svg);
+  for(let g=0;g<=4;g++){
+    const y=PAD.t+h/4*g;
+    svgEl('line',{x1:PAD.l,y1:y.toFixed(1),x2:PAD.l+PW,y2:y.toFixed(1),stroke:g===0||g===4?'#ced4da':'#e9ecef','stroke-width':.5},svg);
+    txt(PAD.l-3,y+3,(mn+(mx-mn)/4*(4-g)).toFixed(4),'#adb5bd',6,'end',svg);
+  }
+
+  // Area KAMA
+  const fp=[];
+  for(let i=0;i<N;i++) if(kf[i]&&ks[i]) fp.push(i);
+  if(fp.length>1){
+    let ss=fp[0],pa=kf[fp[0]]>ks[fp[0]];
+    const df=(fr,to,ab)=>{
+      const tp=[],bp=[];
+      for(let i=fr;i<=to;i++){if(!kf[i]||!ks[i])continue;tp.push([xPos(i),sy(ab?kf[i]:ks[i])]);bp.unshift([xPos(i),sy(ab?ks[i]:kf[i])]);}
+      if(tp.length+bp.length<3)return;
+      svgEl('polygon',{points:[...tp,...bp].map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' '),fill:ab?'#2f9e44':'#c92a2a',opacity:'.07'},svg);
+    };
+    for(let ii=1;ii<fp.length;ii++){const i=fp[ii],ab=kf[i]>ks[i];if(ab!==pa||ii===fp.length-1){df(ss,fp[ii-(ii===fp.length-1?0:1)],pa);ss=i;pa=ab;}}
+  }
+
+  // Candele Heikin Ashi
+  const cW=Math.max(1.2,PW/N*0.6);
+  for(let i=0;i<N;i++){
+    if(ha.open[i]==null)continue;
+    const up = ha.close[i]>=ha.open[i];
+    const col = up?'#2f9e44':'#c92a2a';
+    const x=xPos(i);
+    svgEl('line',{x1:x.toFixed(1),y1:sy(ha.high[i]).toFixed(1),x2:x.toFixed(1),y2:sy(ha.low[i]).toFixed(1),stroke:col,'stroke-width':1},svg);
+    const yTop=sy(Math.max(ha.open[i],ha.close[i])), yBot=sy(Math.min(ha.open[i],ha.close[i]));
+    svgEl('rect',{x:(x-cW/2).toFixed(1),y:yTop.toFixed(1),width:cW.toFixed(1),height:Math.max(yBot-yTop,.6).toFixed(1),fill:col},svg);
+  }
+
+  poly(ks.map((v,i)=>v?[xPos(i),sy(v)]:null).filter(Boolean),svg,'#7c3aed',1.5);
+  poly(kf.map((v,i)=>v?[xPos(i),sy(v)]:null).filter(Boolean),svg,'#dc2626',1.3);
+
+  // SAR: pallino piccolo normale, grande + bordo sul flip
+  sar.forEach((v,i)=>{
+    if(!v||!closes[i])return;
+    const isFlip = sarFlip[i]===true;
+    const col = closes[i]>v?'#2f9e44':'#c92a2a';
+    if(isFlip){
+      svgEl('circle',{cx:xPos(i).toFixed(1),cy:sy(v).toFixed(1),r:4,fill:col,stroke:'#0f1a10','stroke-width':1.2},svg);
+    } else {
+      svgEl('circle',{cx:xPos(i).toFixed(1),cy:sy(v).toFixed(1),r:1.5,fill:col},svg);
+    }
+  });
+
+  // Segnali
+  let ps=null;
+  signals.forEach((s,i)=>{
+    if(!s||s===ps||!closes[i])return;
+    const col={BUY3:'#2f9e44',BUY2:'#1971c2',SELL:'#c92a2a'}[s]||'#868e96';
+    const up=s.includes('BUY');
+    const cy=sy(closes[i])+(up?12:-12);
+    svgEl('polygon',{points:up?`${xPos(i)},${cy-5} ${xPos(i)-4},${cy+4} ${xPos(i)+4},${cy+4}`
+      :`${xPos(i)},${cy+5} ${xPos(i)-4},${cy-4} ${xPos(i)+4},${cy-4}`,fill:col},svg);
+    ps=s;
+  });
+
+  document.getElementById('sugPriceChart').appendChild(svg);
+}
+
+function drawSUGRSI(sug) {
+  const sl = Math.max(0, sug.closes.length-504);
+  const r14=sug.rsi14.slice(sl), r5=sug.rsi5.slice(sl), ao=sug.ao.slice(sl);
+  const N=sug.closes.slice(sl).length;
+  const W=700, PAD={l:54,r:30,t:8,b:20};
+  const panels=[{h:50,id:'ao'},{h:70,id:'rsi'}];
+  const H=panels.reduce((s,p)=>s+p.h,0)+PAD.t+PAD.b;
+  const PW=W-PAD.l-PAD.r;
+  const svg=svgEl('svg',{width:W,height:H,style:'display:block;background:#fff'});
+  const xPos=i=>PAD.l+(i/Math.max(N-1,1))*PW;
+  let yOff=PAD.t;
+
+  // AO
+  {
+    const h=50;
+    const vals=ao.filter(v=>v!=null);
+    const mn2=Math.min(...vals,0),mx2=Math.max(...vals,0);
+    const zero=scY(0,mn2,mx2,yOff,h);
+    const bW=Math.max(1,PW/N-.5);
+    svgEl('rect',{x:PAD.l,y:yOff,width:PW,height:h,fill:'#f8f9fa'},svg);
+    svgEl('line',{x1:PAD.l,y1:zero.toFixed(1),x2:PAD.l+PW,y2:zero.toFixed(1),stroke:'#ced4da','stroke-width':1},svg);
+    ao.forEach((v,i)=>{if(v==null)return;const prev=ao[i-1]??v;const col=v>=prev?'#2f9e44':'#c92a2a';const y0=scY(v,mn2,mx2,yOff,h);const bh=Math.abs(y0-zero)||1;svgEl('rect',{x:(xPos(i)-bW/2).toFixed(1),y:Math.min(y0,zero).toFixed(1),width:bW.toFixed(1),height:bh.toFixed(1),fill:col,opacity:.85},svg);});
+    txt(PAD.l-3,yOff+8,'AO','#adb5bd',6.5,'end',svg);
+    yOff+=h;
+  }
+
+  // RSI
+  {
+    const h=70;
+    const sy2=v=>scY(v,0,100,yOff,h);
+    svgEl('rect',{x:PAD.l,y:yOff,width:PW,height:h,fill:'#f8f9fa'},svg);
+    svgEl('rect',{x:PAD.l,y:sy2(70).toFixed(1),width:PW,height:(sy2(30)-sy2(70)).toFixed(1),fill:'#fff9e6',opacity:.5},svg);
+    [70,50,30].forEach(lv=>{
+      svgEl('line',{x1:PAD.l,y1:sy2(lv).toFixed(1),x2:PAD.l+PW,y2:sy2(lv).toFixed(1),stroke:lv===50?'#ced4da':'#dee2e6','stroke-width':.8,...(lv!==50?{'stroke-dasharray':'3,3'}:{})},svg);
+      txt(PAD.l-3,sy2(lv)+3,lv,'#adb5bd',6.5,'end',svg);
+    });
+    const rp=[];for(let i=0;i<N;i++)if(r14[i]!=null&&r5[i]!=null)rp.push(i);
+    if(rp.length>1){let rs2=rp[0],rb=r5[rp[0]]>r14[rp[0]];
+      const dr=(fr,to,bull)=>{const tp=[],bp=[];for(let i=fr;i<=to;i++){if(r14[i]==null||r5[i]==null)continue;tp.push([xPos(i),sy2(bull?r5[i]:r14[i])]);bp.unshift([xPos(i),sy2(bull?r14[i]:r5[i])]);}const pts=[...tp,...bp];if(pts.length<3)return;svgEl('polygon',{points:pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' '),fill:bull?'#2f9e44':'#c92a2a',opacity:.1},svg);};
+      for(let ii=1;ii<rp.length;ii++){const i=rp[ii],bull=r5[i]>r14[i];if(bull!==rb||ii===rp.length-1){dr(rs2,rp[ii-(ii===rp.length-1?0:1)],rb);rs2=i;rb=bull;}}
+    }
+    poly(r14.map((v,i)=>v!=null?[xPos(i),sy2(v)]:null).filter(Boolean),svg,'#e67700',1.5);
+    poly(r5.map((v,i)=>v!=null?[xPos(i),sy2(v)]:null).filter(Boolean),svg,'#1971c2',1.2,'4,2');
+
+    for(let i=1;i<N;i++){if(r14[i]==null||r5[i]==null||r14[i-1]==null||r5[i-1]==null)continue;
+      if(r5[i-1]<=r14[i-1]&&r5[i]>r14[i]) svgEl('polygon',{points:`${xPos(i)},${(sy2((r5[i]+r14[i])/2)+5).toFixed(1)} ${(xPos(i)-3).toFixed(1)},${(sy2((r5[i]+r14[i])/2)-2).toFixed(1)} ${(xPos(i)+3).toFixed(1)},${(sy2((r5[i]+r14[i])/2)-2).toFixed(1)}`,fill:'#2f9e44'},svg);
+      if(r5[i-1]>=r14[i-1]&&r5[i]<r14[i]) svgEl('polygon',{points:`${xPos(i)},${(sy2((r5[i]+r14[i])/2)-5).toFixed(1)} ${(xPos(i)-3).toFixed(1)},${(sy2((r5[i]+r14[i])/2)+2).toFixed(1)} ${(xPos(i)+3).toFixed(1)},${(sy2((r5[i]+r14[i])/2)+2).toFixed(1)}`,fill:'#c92a2a'},svg);
+    }
+    const lr14=r14.filter(v=>v!=null).at(-1),lr5=r5.filter(v=>v!=null).at(-1);
+    if(lr14){svgEl('rect',{x:PAD.l+PW+2,y:(sy2(lr14)-5).toFixed(1),width:24,height:10,fill:'#e67700'},svg);txt(PAD.l+PW+14,sy2(lr14)+3,lr14.toFixed(0),'#fff',6.5,'middle',svg);}
+    if(lr5){svgEl('rect',{x:PAD.l+PW+2,y:(sy2(lr5)-5).toFixed(1),width:24,height:10,fill:'#1971c2'},svg);txt(PAD.l+PW+14,sy2(lr5)+3,lr5.toFixed(0),'#fff',6.5,'middle',svg);}
+  }
+
+  document.getElementById('sugRsiChart').appendChild(svg);
+}
+
+init();
+</script>
+</body>
+</html>
