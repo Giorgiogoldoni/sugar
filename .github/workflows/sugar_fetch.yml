@@ -1,1 +1,38 @@
+name: RAPTOR Sugar — Daily Fetch
 
+on:
+  schedule:
+
+    - cron: '0 8 * * 1-5'    # 10:00 ora italiana (CET)
+    - cron: '0 14 * * 1-5'   # 16:00 ora italiana (CET)
+    - cron: '0 17 * * 1-5'   # 19:00 ora italiana (CET)
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installa dipendenze
+        run: pip install yfinance pandas
+
+      - name: Esegui fetch
+        run: python sugar_fetch.py
+
+      - name: Commit sugar.json
+        run: |
+          git config user.name  "RAPTOR Bot"
+          git config user.email "raptor-bot@noreply.github.com"
+          git add sugar.json
+          git diff --staged --quiet || git commit -m "🍬 Sugar data $(date +'%d/%m/%Y %H:%M')"
+          git pull --rebase origin main
+          git push
