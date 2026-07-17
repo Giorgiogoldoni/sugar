@@ -208,6 +208,21 @@ def calc_sar_flip_events(dates, closes, sar, sar_flip):
 def main():
     now = datetime.now()
     exec_type = get_execution_type()
+
+    # Bootstrap safety: se il file dati non esiste ancora o è incompleto
+    # (manca la chiave 'ice'), forziamo comunque l'analisi completa,
+    # a prescindere dalla finestra oraria rilevata.
+    needs_full_analysis = True
+    try:
+        with open('sugar.json', 'r', encoding='utf-8') as f:
+            existing = json.load(f)
+        needs_full_analysis = 'ice' not in existing
+    except (FileNotFoundError, json.JSONDecodeError):
+        needs_full_analysis = True
+
+    if needs_full_analysis and exec_type not in ('morning', 'close', 'manual'):
+        print(f"⚠️  sugar.json assente o incompleto — forzo analisi completa (era: {exec_type})")
+        exec_type = 'manual'
     print(f"RAPTOR Sugar Fetch — {now.strftime('%Y-%m-%d %H:%M')} [{exec_type.upper()}]")
 
     # ── ICE Sugar No.11 Futures (25 anni) ─────────────
